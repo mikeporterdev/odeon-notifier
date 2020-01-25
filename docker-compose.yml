@@ -11,6 +11,7 @@ services:
       - PUSHOVER_USER=${PUSHOVER_USER}
       - PUSHOVER_TOKEN=${PUSHOVER_TOKEN}
       - DISABLE_FILM_CACHE=${DISABLE_FILM_CACHE}
+      - CRON_SCHEDULE=${CRON_SCHEDULE}
     depends_on:
       - redis-cache
   redis-cache:

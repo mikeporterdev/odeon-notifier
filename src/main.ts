@@ -19,7 +19,7 @@ interface PuppeteerMovie {
 }
 
 const redisClient = createClient({
-  host: process.env.REDIS_URL ?? 'localhost'
+  host: process.env.REDIS_URL ?? 'localhost',
 });
 
 export class OdeonScraper {
@@ -87,8 +87,8 @@ export class OdeonScraper {
       this.browser = await puppeteer.launch({
         args: [
           '--no-sandbox',
-          '--disable-setuid-sandbox'
-        ]
+          '--disable-setuid-sandbox',
+        ],
       });
     }
 
@@ -130,11 +130,12 @@ export class OdeonScraper {
 
 const odeonScraper = new OdeonScraper();
 
-new CronJob('0 * * * * *', async () => {
+new CronJob(process.env.CRON_SCHEDULE ?? '0 0 * * * *', async () => {
   console.log('Running job');
   await odeonScraper.scrapeOdeon().catch(e => console.error(e));
 }, null, true, 'Europe/London');
 
-console.log("Started!")
+console.log('Started!');
+
 // Keep process alive
 new Promise(() => null);
