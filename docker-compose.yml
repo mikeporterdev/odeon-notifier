@@ -1,7 +1,20 @@
 version: '3'
 services:
-  redis:
-    container_name: redis
+  odeon-notifier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - odeon-notifier
+    environment:
+      - REDIS_URL=redis-cache
+      - PUSHOVER_USER=${PUSHOVER_USER}
+      - PUSHOVER_TOKEN=${PUSHOVER_TOKEN}
+      - DISABLE_FILM_CACHE=${DISABLE_FILM_CACHE}
+    depends_on:
+      - redis-cache
+  redis-cache:
+    container_name: redis-cache
     image: bitnami/redis:latest
     ports:
       - 6379:6379
@@ -9,5 +22,9 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - redisVolume:/bitnami/redis/data
+    networks:
+      - odeon-notifier
 volumes:
   redisVolume:
+networks:
+  odeon-notifier:
