@@ -4,8 +4,7 @@ import movieTransformerService from './di-container';
 import { install } from 'source-map-support';
 install();
 
-
-const work = async () => {
+const work = async (): Promise<void> => {
   console.log('Running job');
   await movieTransformerService.searchForMovies().catch(e => console.error(e));
 };
