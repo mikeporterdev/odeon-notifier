@@ -3,7 +3,6 @@ import { Movie, MovieSearcher } from './movie-transformer-service';
 import { OdeonMovie, OdeonScraper } from './odeon-scraper';
 
 /**
- * TODO: Expand to include showing times
  * TODO: Expand to take location dynamically
  */
 export class OdeonSearcher implements MovieSearcher {
@@ -26,7 +25,7 @@ export class OdeonSearcher implements MovieSearcher {
         title: i.title,
         dates: i.dates.map(date => {
           /**
-           * FIXME: This is a bit ugly but I don't actually care about the times yet, so to make sure the dates are
+           * This is a bit ugly but I don't actually care about the times yet, so to make sure the dates are
            * correct, just add one hour in case of DST
            */
           return addHours(parse(date.slice(-6), 'dd MMM', new Date()), 1);

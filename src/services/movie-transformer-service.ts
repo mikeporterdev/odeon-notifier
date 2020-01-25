@@ -58,7 +58,6 @@ interface ScraperResult {
   movies: Movie[];
 }
 
-
 export interface Movie {
   title: string;
   dates: Date[];
