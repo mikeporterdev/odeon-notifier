@@ -18,6 +18,7 @@
     "noImplicitThis": false,
     "strictNullChecks": false
   },
+  "compileOnSave": false,
   "include": [
     "src/**/*",
     "__tests__/**/*"

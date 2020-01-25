@@ -1,23 +1,14 @@
-import Bottleneck from 'bottleneck';
-import axios from 'axios';
 import { Notifier } from './notifiers';
 import { Movie } from '../movie-transformer-service';
 import { checkEnvironmentVariable } from '../../util/check-environment-variable';
+import { PushoverClient } from '../clients/pushover-client';
 
-const pushoverLimiter = new Bottleneck({
-  maxConcurrentStreams: 1,
-});
+//TODO split pushover client from notifier
+export class PushoverNotifier implements Notifier {
+  private readonly pushoverClient: PushoverClient;
 
-export class PushoverClient implements Notifier {
-  private async push(msg: PushoverMessage): Promise<void> {
-    const data = {
-      token: process.env.PUSHOVER_TOKEN,
-      user: process.env.PUSHOVER_USER,
-      ...msg,
-    };
-
-    pushoverLimiter.schedule(() => axios.post('https://api.pushover.net/1/messages.json', data))
-      .catch(e => console.error(e));
+  constructor(pushoverClient: PushoverClient) {
+    this.pushoverClient = pushoverClient;
   }
 
   public async notify(movies: Movie[]): Promise<void> {
@@ -42,7 +33,7 @@ export class PushoverClient implements Notifier {
       return acc;
     }, [''] as string[]);
 
-    await Promise.all(messages.map(message => this.push({
+    await Promise.all(messages.map(message => this.pushoverClient.push({
       message,
       title: 'New movies uploaded to Odeon Glasgow Quay!',
     })));

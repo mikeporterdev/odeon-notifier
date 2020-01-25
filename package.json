@@ -34,6 +34,7 @@
     "prettier": "~1.19.1",
     "rimraf": "~3.0.0",
     "ts-jest": "~24.2.0",
+    "ts-mockito": "^2.5.0",
     "tslib": "^1.10.0",
     "tsutils": "~3.17.0",
     "typescript": "~3.7.4"
@@ -48,10 +49,12 @@
   },
   "lint-staged": {
     "src/**/*.{js,jsx}": [
-      "eslint . --fix --ext .ts,.tsx", "git add"
+      "eslint . --fix --ext .ts,.tsx",
+      "git add"
     ],
     "src/**/*.scss": [
-      "stylelint --syntax scss --fix", "git add"
+      "stylelint --syntax scss --fix",
+      "git add"
     ]
   },
   "husky": {

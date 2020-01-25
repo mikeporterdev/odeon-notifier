@@ -1,12 +1,13 @@
-import { RedisClient } from './redis-client';
+import { RedisClient } from './clients/redis-client';
 import { MovieNotifier } from './movie-notifier';
+import { filterAsync } from '../util/arrays';
 
 export class MovieTransformerService {
-  private readonly scrapers: Scraper[];
+  private readonly scrapers: MovieSearcher[];
   private readonly redisClient: RedisClient;
   private readonly movieNotifier: MovieNotifier;
 
-  constructor(scrapers: Scraper[], redisClient: RedisClient, movieNotifier: MovieNotifier) {
+  constructor(scrapers: MovieSearcher[], redisClient: RedisClient, movieNotifier: MovieNotifier) {
     this.scrapers = scrapers;
     this.redisClient = redisClient;
     this.movieNotifier = movieNotifier;
@@ -16,7 +17,7 @@ export class MovieTransformerService {
     return await Promise.all(this.scrapers.map(async scraper => {
       return {
         source: scraper.source,
-        movies: await scraper.scrape(),
+        movies: await scraper.getMovies(),
       };
     }));
   }
@@ -29,10 +30,15 @@ export class MovieTransformerService {
         .filter(film => !film.title.includes('Autism Friendly'))
         .filter(film => !film.title.includes('Dubbed'));
 
-      const moviesNotInCache = filteredCategories
-        .filter(movie => !this.redisClient.exists(`film:${scraperResult.source}:${movie.title}`) || process.env.DISABLE_FILM_CACHE);
 
-      moviesNotInCache.forEach(movie => this.redisClient.set(`film:${scraperResult.source}:${movie.title}`, JSON.stringify(movie)));
+
+      const moviesNotInCache = await filterAsync(filteredCategories, async movie => {
+        return (!await this.redisClient.exists(`film:${scraperResult.source}:${movie.title}`)) || !!process.env.DISABLE_FILM_CACHE;
+      } );
+
+      moviesNotInCache.forEach(movie => {
+        this.redisClient.set(`film:${scraperResult.source}:${movie.title}`, JSON.stringify(movie));
+      });
 
       if (moviesNotInCache?.length) {
         console.log(`Found ${moviesNotInCache.length} new films, sending notifications!`);
@@ -42,8 +48,8 @@ export class MovieTransformerService {
   }
 }
 
-export interface Scraper {
-  scrape: () => Promise<Movie[]>
+export interface MovieSearcher {
+  getMovies: () => Promise<Movie[]>
   source: string;
 }
 
