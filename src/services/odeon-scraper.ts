@@ -1,7 +1,7 @@
-import * as puppeteer from 'puppeteer';
-import { Browser, Page } from 'puppeteer';
+import { Page } from 'puppeteer';
 import { addHours, parse } from 'date-fns';
 import { Movie, Scraper } from './movie-transformer-service';
+import { PuppeteerClient } from './puppeteer-client';
 
 /**
  * TODO: Expand to include showing times
@@ -9,38 +9,33 @@ import { Movie, Scraper } from './movie-transformer-service';
  */
 export class OdeonScraper implements Scraper {
   readonly source = 'Odeon';
+  private readonly puppeteerClient: PuppeteerClient;
 
-  private browser: Browser;
+  constructor(puppeteerClient: PuppeteerClient) {
+    this.puppeteerClient = puppeteerClient;
+  }
 
   public async scrape(): Promise<Movie[]> {
 
-    const page = await this.checkBrowserRunning();
-    await page.goto('https://www.odeon.co.uk/cinemas/glasgow_quay/120/');
-    await page.click('[href=\\#ind-week]');
-    const byWeek = await this.parseFilms(page, 'WEEK');
-    await page.click('[href=\\#ind-future]');
-    await page
-      .waitForSelector('.futureview > .tab-content > .tab-pane > div');
-    const advanceDates = await this.parseFilms(page, 'FUTURE');
+    const allFilms = await this.puppeteerClient.runOnPage(async (page) => {
+      await page.goto('https://www.odeon.co.uk/cinemas/glasgow_quay/120/');
+      await page.click('[href=\\#ind-week]');
+      const byWeek = await this.parseFilms(page, 'WEEK');
+      await page.click('[href=\\#ind-future]');
+      await page
+        .waitForSelector('.futureview > .tab-content > .tab-pane > div');
+      const advanceDates = await this.parseFilms(page, 'FUTURE');
 
-    const fullList =
-      [
+      return this.mergeShowingsTogether([
         ...byWeek,
         ...advanceDates,
-      ];
+      ]);
+    });
 
-    const allFilms = fullList.reduce((acc, film) => {
-      const existingFilm = acc.find(i => i.title === film.title);
+    return this.convertOdeonMoviesToMovies(allFilms);
+  }
 
-      if (existingFilm) {
-        existingFilm.dates = [...existingFilm.dates, ...film.dates];
-      } else {
-        acc.push(film);
-      }
-      return acc;
-
-    }, [] as OdeonMovie[]);
-
+  private convertOdeonMoviesToMovies(allFilms: OdeonMovie[]): Movie[] {
     return allFilms.map(i => {
       return {
         title: i.title,
@@ -55,27 +50,26 @@ export class OdeonScraper implements Scraper {
     });
   }
 
+  private mergeShowingsTogether(fullList: OdeonMovie[]): OdeonMovie[] {
+    return fullList.reduce((acc, film) => {
+      const existingFilm = acc.find(i => i.title === film.title);
 
-  private async checkBrowserRunning(): Promise<Page> {
-    if (!this.browser?.isConnected()) {
-      await this.browser?.close();
-      this.browser = await puppeteer.launch({
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-        ],
-      });
-    }
+      if (existingFilm) {
+        existingFilm.dates = [...existingFilm.dates, ...film.dates];
+      } else {
+        acc.push(film);
+      }
+      return acc;
 
-    return await this.browser.newPage();
+    }, [] as OdeonMovie[]);
   }
 
   private async parseFilms(page: Page, type: string): Promise<OdeonMovie[]> {
-    let className = type.toLowerCase();
-    className = (className.includes('day')) ? 'day' : className;
+    const className = type.toLowerCase();
 
     await page
       .waitForSelector(`.${className}view > .tab-content > .tab-pane > div > #ind-film-list-${type}`);
+
     return await page.evaluate((type) => {
       const filmList: OdeonMovie[] = [];
       const allFilmDetails = document.querySelectorAll(`.film-detail.${type}`);
@@ -91,12 +85,10 @@ export class OdeonScraper implements Scraper {
           dates.push(dateDiv.textContent);
         });
 
-        const film = {
+        filmList.push({
           title,
           dates,
-        };
-
-        filmList.push(film);
+        });
       });
       return Promise.resolve(filmList);
     }, type);
