@@ -21,5 +21,7 @@
     "prettier",
     "prettier/@typescript-eslint"
   ],
-  "rules": {}
+  "rules": {
+    "@typescript-eslint/no-use-before-define": "off"
+  }
 }

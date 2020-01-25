@@ -2,10 +2,13 @@ import * as puppeteer from 'puppeteer';
 import { Browser, Page } from 'puppeteer';
 import { addHours, parse } from 'date-fns';
 import { install } from 'source-map-support';
+import { createClient } from 'redis';
+import { pushMovies } from './pushover';
+import { CronJob } from 'cron';
 
 install();
 
-interface Movie {
+export interface Movie {
   title: string;
   dates: Date[];
 }
@@ -14,6 +17,8 @@ interface PuppeteerMovie {
   title: string;
   dates: string[];
 }
+
+const redisClient = createClient();
 
 export class OdeonScraper {
 
@@ -62,20 +67,22 @@ export class OdeonScraper {
       .filter(film => !film.title.includes('Autism Friendly'))
       .filter(film => !film.title.includes('Dubbed'));
 
-    console.log(filteredCategories);
+    const moviesNotInCache = filteredCategories
+      .filter(movie => !redisClient.get(`film:${movie.title}`) || process.env.DISABLE_FILM_CACHE);
+
+    moviesNotInCache.forEach(movie => redisClient.set(`film:${movie.title}`, JSON.stringify(movie)));
+
+    if (moviesNotInCache?.length) {
+      console.log(`Found ${moviesNotInCache.length} new films, sending notifications!`);
+      await pushMovies(moviesNotInCache);
+    }
   }
 
 
   private async checkBrowserRunning(): Promise<Page> {
     if (!this.browser?.isConnected()) {
       await this.browser?.close();
-      this.browser = await puppeteer.launch({
-        // headless: false,
-        // defaultViewport: {
-        //   width: 1920,
-        //   height: 1080,
-        // },
-      });
+      this.browser = await puppeteer.launch();
     }
 
     return await this.browser.newPage();
@@ -92,7 +99,7 @@ export class OdeonScraper {
       const allFilmDetails = document.querySelectorAll(`.film-detail.${type}`);
 
       allFilmDetails.forEach(filmDetailDiv => {
-        const title = filmDetailDiv.querySelector('.presentation-info > h4 > a').textContent
+        const title = filmDetailDiv.querySelector('.presentation-info > h4 > a').textContent;
 
         const dateDivs = filmDetailDiv.querySelectorAll('.times > .presentation-info');
 
@@ -116,13 +123,10 @@ export class OdeonScraper {
 
 const odeonScraper = new OdeonScraper();
 
-(async () => {
+new CronJob('0 * * * * *', async () => {
+  console.log('Running job');
   await odeonScraper.scrapeOdeon().catch(e => console.error(e));
-})();
-
-// new CronJob('* * * * * *', async () => {
-//   await odeonScraper.scrapeOdeon().catch(e => console.error(e));
-// }, null, true, 'Europe/London')
+}, null, true, 'Europe/London');
 
 
 // Keep process alive
