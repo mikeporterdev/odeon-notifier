@@ -58,7 +58,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
     }
   },
   "author": "Jakub Synowiec <github@jakubsynowiec.info>",
