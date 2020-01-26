@@ -1,7 +1,7 @@
 {
-  "name": "node-typescript-boilerplate",
+  "name": "odeon-notifier",
   "version": "0.0.0",
-  "description": "Minimalistic boilerplate to quick-start Node.js development in TypeScript.",
+  "description": "Simple app to scan my local Odeon branch for new movie posting",
   "engines": {
     "node": ">= 12.13 <13"
   },
@@ -62,6 +62,6 @@
       "pre-push": "npm run test"
     }
   },
-  "author": "Jakub Synowiec <github@jakubsynowiec.info>",
+  "author": "Mike Porter <mikeporter@mikeporter.dev>",
   "license": "Apache-2.0"
 }
