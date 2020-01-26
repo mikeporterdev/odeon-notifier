@@ -46,4 +46,32 @@ describe('Pushover Notifier', () => {
     expect(arg.title).toBe('New movies uploaded to Odeon Glasgow Quay!');
     expect(arg.message).toBe('Test Movie - Showing between Sat Jan 04 2020 and Mon Jan 06 2020!');
   });
+
+  describe('Is Enabled', () => {
+    beforeEach(() => {
+      delete process.env.PUSHOVER_USER;
+      delete process.env.PUSHOVER_TOKEN;
+    });
+
+    it('should return is enabled if both environment variables set', async () => {
+      process.env.PUSHOVER_USER = 'test1';
+      process.env.PUSHOVER_TOKEN = 'test1';
+      expect(pushoverNotifier.isEnabled()).toBe(true);
+    });
+
+    it('should false if only token set', async () => {
+      process.env.PUSHOVER_TOKEN = 'test1';
+      expect(pushoverNotifier.isEnabled()).toBe(false);
+    });
+
+    it('should false if only user set', async () => {
+      process.env.PUSHOVER_USER = 'test1';
+      expect(pushoverNotifier.isEnabled()).toBe(false);
+    });
+
+    it('should false if none set', async () => {
+      expect(pushoverNotifier.isEnabled()).toBe(false);
+    });
+  });
+
 });
