@@ -22,6 +22,7 @@ describe('Movie Transformer Service', () => {
     const film = { title: 'TestFilm', dates: [new Date()] };
     when(mockedScraper.getMovies()).thenResolve([film]);
     when(mockedRedis.exists('film:Odeon:TestFilm')).thenResolve(false);
+    when(mockedMovieNotifier.pushMovies(anything())).thenResolve();
     await movieTransformerService.searchForMovies();
 
     verify(mockedScraper.getMovies()).once();
