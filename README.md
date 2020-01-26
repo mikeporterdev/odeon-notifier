@@ -1,7 +1,7 @@
 [![TypeScript version][ts-badge]][typescript-37]
 [![Node.js version][nodejs-badge]][nodejs]
 [![Build Status](https://travis-ci.com/mikeporterdev/odeon-notifier.svg?token=bsUoyywxdKyupEznaZLN&branch=master)](https://travis-ci.com/mikeporterdev/odeon-notifier)
-# node-typescript-boilerplate
+# odeon-notifier
 
 Simple project to monitor my local Odeon cinema for new releases being uploaded.
 
