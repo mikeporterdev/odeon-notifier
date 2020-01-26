@@ -11,15 +11,8 @@ export class PushoverNotifier implements Notifier {
   }
 
   public async notify(movies: Movie[]): Promise<void> {
-    let dateMessage;
-
     const messages = movies.reduce((acc, movie) => {
-      if (movie.dates.length === 1) {
-        dateMessage = `Showing on ${movie.dates[0].toDateString()}!`;
-      } else {
-        const dates = movie.dates.sort((d1, d2) => d1 < d2 ? -1 : d1 > d2 ? 1 : 0);
-        dateMessage = `Showing between ${dates[0].toDateString()} and ${dates[dates.length - 1].toDateString()}!`;
-      }
+      const dateMessage = this.buildDateMessage(movie);
 
       const message = `${movie.title} - ${dateMessage}`;
       const currentString = acc[acc.length - 1];
@@ -30,7 +23,7 @@ export class PushoverNotifier implements Notifier {
         if (acc[acc.length - 1].length === 0) {
           acc[acc.length - 1] = currentString + message;
         } else {
-          acc[acc.length - 1] = currentString + '\n' +  message;
+          acc[acc.length - 1] = currentString + '\n' + message;
         }
       }
       return acc;
@@ -42,7 +35,18 @@ export class PushoverNotifier implements Notifier {
     })));
   }
 
-  isEnabled(): boolean {
+  private buildDateMessage(movie: Movie): string {
+    let dateMessage;
+    if (movie.dates.length === 1) {
+      dateMessage = `Showing on ${movie.dates[0].toDateString()}!`;
+    } else {
+      const dates = movie.dates.sort((d1, d2) => d1 < d2 ? -1 : d1 > d2 ? 1 : 0);
+      dateMessage = `Showing between ${dates[0].toDateString()} and ${dates[dates.length - 1].toDateString()}!`;
+    }
+    return dateMessage;
+  }
+
+  public isEnabled(): boolean {
     const envVarsPresent = checkEnvironmentVariable('PUSHOVER_USER') && checkEnvironmentVariable('PUSHOVER_TOKEN');
 
     if (envVarsPresent) {

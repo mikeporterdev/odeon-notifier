@@ -1,4 +1,16 @@
 language: node_js
 node_js:
-  - "8.9"
-  - "node"
+- '8.9'
+- node
+env:
+  global:
+    secure: PLcwTHF8NzpBAxvz6cAs30TpeKEA4xVi8BQo4ZHZRmb9n48iTuEfEzhL4Djmx2N7XymnBUoTN2B8wmtrdGWHse1H5BPZ0nkunwTr+IsoLh5g0+OyjLlNlQDQOHFLRnkmW7fYcgBVmdjUqhot30G4QuIOr5JePgkIQqYlLqk8pRA33QgUJaliYpMkjRGzv8H/NNhrQ8O8VQQtnDmam/z9XswubRiituAlU2WfUL4DiX0QDtyikuJ+JexYX0CN3NQrWtuRwtW2qqZHVocLgVSFrS40eLgbayiqfCKalfMAkN+w+RIPkN94b4FJuf6vRGIfny1yLKjGtQBLd8WypMxrxy7xNYgR2C78R31QI4V9AsbJiYPTMODweS0O2FGI7yuFBE1RfdQ9eCRZvTsoMz/x5b/EN+WqNW3estzMOrCcEGHuudSF7Aj5+L1GL/Rdwr7DKEpPzAWNN6raL3Adid1Iyij5HtYS/IB30uR2ZPIo4yh5v26GKDPrrzfYDPLVR2cp3PSMwKiV872J3bXLFwlsc4fqZbzQXGsXD+SxFjjwBSD11HrWwyjcHzk9+SZD2KpOvy4LZdg5dxprGs1cnfy5l1cWiFKPibdzBxqUI28si6NbuVSe0r5L6P6NRa9Fef95mH+rk1jGJthcQuEZNRrccHj+ossd8I9DJXNIvZDekpY=
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+script:
+  - npm run lint
+  - npm run test
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
