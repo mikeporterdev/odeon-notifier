@@ -16,7 +16,7 @@ RUN chmod +x /usr/local/bin/dumb-init
 
 RUN npm install typescript -g
 COPY package.json package-lock.json ./
-RUN npm install --only-production
+RUN npm install
 COPY src src
 COPY tsconfig*.json ./
 RUN npm run build

@@ -31,18 +31,18 @@ export class MovieTransformerService {
         .filter(film => !film.title.includes('Dubbed'));
 
 
-
       const moviesNotInCache = await filterAsync(filteredCategories, async movie => {
-        return (!await this.redisClient.exists(`film:${scraperResult.source}:${movie.title}`)) || !!process.env.DISABLE_FILM_CACHE;
-      } );
-
-      moviesNotInCache.forEach(movie => {
-        this.redisClient.set(`film:${scraperResult.source}:${movie.title}`, JSON.stringify(movie));
+        return (!!process.env.DISABLE_FILM_CACHE || !await this.redisClient.exists(`film:${scraperResult.source}:${movie.title}`));
       });
 
       if (moviesNotInCache?.length) {
         console.log(`Found ${moviesNotInCache.length} new films, sending notifications!`);
-        await this.movieNotifier.pushMovies(moviesNotInCache);
+        await this.movieNotifier.pushMovies(moviesNotInCache)
+          .then(() => {
+            moviesNotInCache.forEach(movie => {
+              this.redisClient.set(`film:${scraperResult.source}:${movie.title}`, JSON.stringify(movie));
+            });
+          });
       }
     }));
   }
