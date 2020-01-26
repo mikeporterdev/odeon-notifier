@@ -1,6 +1,9 @@
 [![TypeScript version][ts-badge]][typescript-37]
 [![Node.js version][nodejs-badge]][nodejs]
 [![Build Status](https://travis-ci.com/mikeporterdev/odeon-notifier.svg?token=bsUoyywxdKyupEznaZLN&branch=master)](https://travis-ci.com/mikeporterdev/odeon-notifier)
+[![Maintainability](https://api.codeclimate.com/v1/badges/6de4e60a4fb2c490ee2b/maintainability)](https://codeclimate.com/github/mikeporterdev/odeon-notifier/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/6de4e60a4fb2c490ee2b/test_coverage)](https://codeclimate.com/github/mikeporterdev/odeon-notifier/test_coverage)
+
 # odeon-notifier
 
 Simple project to monitor my local Odeon cinema for new releases being uploaded.
