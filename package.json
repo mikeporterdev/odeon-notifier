@@ -7,11 +7,12 @@
   },
   "dependencies": {
     "async-redis": "^1.1.7",
-    "axios": "^0.19.2",
+    "axios": "^0.20.0",
     "bottleneck": "^2.19.5",
     "cron": "^1.8.1",
-    "date-fns": "^2.9.0",
-    "puppeteer": "^2.0.0",
+    "date-fns": "^2.16.1",
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.20",
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {
@@ -19,6 +20,7 @@
     "@types/cron": "^1.7.1",
     "@types/date-fns": "^2.6.0",
     "@types/jest": "~24.0.25",
+    "@types/lodash": "^4.14.161",
     "@types/node": "~12.12.22",
     "@types/puppeteer": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "~2.14.0",
@@ -36,7 +38,7 @@
     "ts-mockito": "^2.5.0",
     "tslib": "^1.10.0",
     "tsutils": "~3.17.0",
-    "typescript": "~3.7.4"
+    "typescript": "~3.9.7"
   },
   "scripts": {
     "clean": "rimraf coverage build tmp",

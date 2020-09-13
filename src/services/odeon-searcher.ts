@@ -1,20 +1,19 @@
-import { addHours, parse } from 'date-fns';
+import { parse } from 'date-fns';
 import { Movie, MovieSearcher } from './movie-transformer-service';
-import { OdeonMovie, OdeonScraper } from './odeon-scraper';
+import { OdeonApiClient } from './clients/odeon-api-client';
+import { OdeonMovie } from '../models/odeon-internal';
 
 /**
  * TODO: Expand to take location dynamically
  */
 export class OdeonSearcher implements MovieSearcher {
   readonly source = 'Odeon';
-  private odeonScraper: OdeonScraper;
 
-  constructor(odeonScraper: OdeonScraper) {
-    this.odeonScraper = odeonScraper;
+  constructor(private readonly odeonApiClient: OdeonApiClient) {
   }
 
   public async getMovies(): Promise<Movie[]> {
-    const allShowings = await this.odeonScraper.getMovies();
+    const allShowings = await this.odeonApiClient.getOdeonMovies();
     const allMovies = this.mergeShowingsTogether(allShowings);
     return this.convertOdeonMoviesToMovies(allMovies);
   }
@@ -24,11 +23,7 @@ export class OdeonSearcher implements MovieSearcher {
       return {
         title: i.title,
         dates: i.dates.map(date => {
-          /**
-           * This is a bit ugly but I don't actually care about the times yet, so to make sure the dates are
-           * correct, just add one hour in case of DST
-           */
-          return addHours(parse(date.slice(-6), 'dd MMM', new Date()), 1);
+          return parse(date, 'yyyy-MM-dd', new Date())
         }),
       };
     });
