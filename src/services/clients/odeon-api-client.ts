@@ -19,10 +19,11 @@ export class OdeonApiClient {
   }
 
   private async getAuthToken(): Promise<string> {
-    const message = await axios.get(`https://beta.odeon.co.uk/cinemas/glasgow-quay/`);
-    const re = new RegExp(/authToken":"([^"]+)"/)
-    const regExpExecArray = re.exec(message.data);
-    return regExpExecArray[1];
+    const authToken = process.env.AUTH_TOKEN;
+    if (!authToken) {
+      throw new Error('No Auth Token Found')
+    }
+    return authToken
   }
 
   public async getAllShowings(): Promise<ShowingsResponse[]> {
