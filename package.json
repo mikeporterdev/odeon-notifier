@@ -10,8 +10,9 @@
     "axios": "^0.20.0",
     "bottleneck": "^2.19.5",
     "cron": "^1.8.1",
-    "date-fns": "^2.16.1",
+    "date-fns": "^2.22.1",
     "dotenv": "^8.2.0",
+    "jsdom": "^16.6.0",
     "lodash": "^4.17.20",
     "source-map-support": "^0.5.16"
   },
@@ -20,6 +21,7 @@
     "@types/cron": "^1.7.1",
     "@types/date-fns": "^2.6.0",
     "@types/jest": "~24.0.25",
+    "@types/jsdom": "^16.2.11",
     "@types/lodash": "^4.14.161",
     "@types/node": "~12.12.22",
     "@types/puppeteer": "^2.0.0",
